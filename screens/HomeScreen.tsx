@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput, // Import TextInput
 } from 'react-native';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { supabase } from '../lib/supabase';
@@ -27,7 +28,7 @@ type Product = {
   name: string;
   price: number;
   stock: number;
-  picture: string; // CHANGED: From image_url to picture
+  picture: string;
   category_id?: number;
 };
 
@@ -38,10 +39,12 @@ type Category = {
 
 export default function HomeScreen({ navigation }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); // New state for filtered products
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number>(-1); // -1 for All
+  const [searchQuery, setSearchQuery] = useState<string>(''); // New state for search query
 
   useEffect(() => {
     fetchCategories();
@@ -49,7 +52,20 @@ export default function HomeScreen({ navigation }: Props) {
 
   useEffect(() => {
     fetchProducts();
-  }, [selectedCategory]);
+  }, [selectedCategory]); // Fetch products when category changes
+
+  // New useEffect to handle filtering when products or search query changes
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredProducts(products); // If search query is empty, show all products
+    } else {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(lowerCaseQuery)
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [products, searchQuery]); // Re-filter when 'products' or 'searchQuery' change
 
   const fetchCategories = async () => {
     const { data, error } = await supabase.from('categories').select('*');
@@ -72,15 +88,14 @@ export default function HomeScreen({ navigation }: Props) {
     if (error) {
       console.error('Fetch products error:', error);
     } else {
-      // Cast the data as Product[] and ensure it uses 'picture'
       setProducts((data as Product[]) || []);
+      // filteredProducts will be updated by the useEffect hook
     }
     setLoading(false);
   };
 
   const renderItem = ({ item }: { item: Product }) => (
     <View style={styles.card}>
-      {/* CHANGED: Use item.picture for the image source */}
       <Image source={{ uri: item.picture }} style={styles.image} />
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.price}>${item.price.toFixed(2)}</Text>
@@ -107,6 +122,14 @@ export default function HomeScreen({ navigation }: Props) {
         <Text style={styles.title}>🛒 Welcome to MarketApp</Text>
       </View>
 
+      {/* New Search Bar */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search products..."
+        value={searchQuery}
+        onChangeText={setSearchQuery} // Update searchQuery state directly
+      />
+
       <View style={styles.categoryContainer}>
         {categories.map((cat) => (
           <TouchableOpacity
@@ -115,7 +138,10 @@ export default function HomeScreen({ navigation }: Props) {
               styles.categoryBtn,
               selectedCategory === cat.id && styles.selectedCategory,
             ]}
-            onPress={() => setSelectedCategory(cat.id)}
+            onPress={() => {
+                setSelectedCategory(cat.id);
+                setSearchQuery(''); // Clear search when category changes
+            }}
           >
             <Text
               style={[
@@ -132,12 +158,16 @@ export default function HomeScreen({ navigation }: Props) {
       {loading ? (
         <ActivityIndicator size="large" style={{ marginTop: 30 }} />
       ) : (
+        // Use filteredProducts instead of products
         <FlatList
-          data={products}
+          data={filteredProducts}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           numColumns={2}
+          ListEmptyComponent={() => ( // Add a component for when no products are found
+            <Text style={styles.noResultsText}>No products found.</Text>
+          )}
         />
       )}
     </View>
@@ -158,6 +188,15 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  // New style for the search bar
+  searchBar: {
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
   },
   categoryContainer: {
     flexDirection: 'row',
@@ -222,5 +261,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
+  },
+  noResultsText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
   },
 });
