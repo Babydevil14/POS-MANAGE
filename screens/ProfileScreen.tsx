@@ -18,6 +18,7 @@ export default function ProfileScreen() {
     {
       title: 'Manage Products',
       icon: <Ionicons name="cube-outline" size={22} color="#009e60" />,
+      // No route here, as it triggers the sub-menu toggle
     },
     {
       title: 'Order History',
@@ -29,24 +30,13 @@ export default function ProfileScreen() {
       icon: <FontAwesome5 name="chart-line" size={20} color="#009e60" />,
       route: 'SalesReport',
     },
-    {
-      title: 'Settings',
-      icon: <Ionicons name="settings-outline" size={22} color="#009e60" />,
-      route: 'Settings',
-    },
-    {
-      title: 'Logout',
-      icon: <MaterialIcons name="logout" size={22} color="red" />,
-      isLogout: true,
-    },
+    // 'Settings' and 'Logout' items have been removed
   ];
 
   const handleNavigation = (title: string, route?: string) => {
     if (title === 'Manage Products') {
       setShowProductOptions(!showProductOptions);
-    } else if (title === 'Logout') {
-      console.log('Logging out...');
-    } else if (route) {
+    } else if (route) { // The 'Logout' condition is no longer needed as the item is gone
       navigation.navigate(route as never);
     }
   };
@@ -59,15 +49,14 @@ export default function ProfileScreen() {
         {menuItems.map((item, index) => (
           <View key={index}>
             <TouchableOpacity
-              style={[styles.menuItem, item.isLogout && { borderColor: 'red' }]}
+              // REMOVED: item.isLogout condition, as it no longer exists on any item
+              style={styles.menuItem}
               onPress={() => handleNavigation(item.title, item.route)}
             >
               <View style={styles.icon}>{item.icon}</View>
               <Text
-                style={[
-                  styles.menuText,
-                  item.isLogout && { color: 'red', fontWeight: 'bold' },
-                ]}
+                // REMOVED: item.isLogout condition, as it no longer exists on any item
+                style={styles.menuText}
               >
                 {item.title}
               </Text>
