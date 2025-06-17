@@ -27,7 +27,7 @@ type Product = {
   name: string;
   price: number;
   stock: number;
-  image_url: string;
+  picture: string; // CHANGED: From image_url to picture
   category_id?: number;
 };
 
@@ -72,6 +72,7 @@ export default function HomeScreen({ navigation }: Props) {
     if (error) {
       console.error('Fetch products error:', error);
     } else {
+      // Cast the data as Product[] and ensure it uses 'picture'
       setProducts((data as Product[]) || []);
     }
     setLoading(false);
@@ -79,7 +80,8 @@ export default function HomeScreen({ navigation }: Props) {
 
   const renderItem = ({ item }: { item: Product }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.image_url }} style={styles.image} />
+      {/* CHANGED: Use item.picture for the image source */}
+      <Image source={{ uri: item.picture }} style={styles.image} />
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.price}>${item.price.toFixed(2)}</Text>
       <TouchableOpacity
