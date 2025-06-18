@@ -28,7 +28,7 @@ export default function ProfileScreen() {
     {
       title: 'Sales Report',
       icon: <FontAwesome5 name="chart-line" size={20} color="#009e60" />,
-      route: 'SalesReport',
+      route: 'SalesSummaryScreen'
     },
     // 'Settings' and 'Logout' items have been removed
   ];

@@ -12,6 +12,13 @@ import { DrawerScreenProps } from '@react-navigation/drawer';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
 
+// Assuming CartItem is defined in your context, otherwise define it here
+type CartItem = {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+};
 
 type RootDrawerParamList = {
   Home: undefined;
@@ -37,6 +44,8 @@ export default function CartScreen({ navigation }: Props) {
     0
   );
 
+  // This function seems to attempt to sync with a 'cart_items' table.
+  // Make sure this table exists and is what you intend.
   const updateCartQuantity = async (itemId: number, quantity: number) => {
     const { error } = await supabase
       .from('cart_items')
@@ -48,11 +57,18 @@ export default function CartScreen({ navigation }: Props) {
     }
   };
 
-  const renderItem = ({ item }: { item: any }) => (
+  const renderItem = ({ item }: { item: CartItem }) => (
     <View style={styles.item}>
       <View>
         <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.details}>${item.price.toFixed(2)}</Text>
+        {/* MODIFIED: Changed price display to Rupiah format */}
+        <Text style={styles.details}>
+          {item.price.toLocaleString('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+          })}
+        </Text>
         <View style={styles.quantityRow}>
           <Text style={styles.quantityLabel}>Qty:</Text>
           <TextInput
@@ -62,7 +78,7 @@ export default function CartScreen({ navigation }: Props) {
             onChangeText={(text) => {
               const qty = parseInt(text) || 0;
               updateQuantity(item.id, qty); // local state update
-              updateCartQuantity(item.id, qty); // optional Supabase sync
+              // updateCartQuantity(item.id, qty); // optional Supabase sync
             }}
           />
         </View>
@@ -90,7 +106,14 @@ export default function CartScreen({ navigation }: Props) {
             renderItem={renderItem}
             style={styles.list}
           />
-          <Text style={styles.total}>Total: ${totalPrice.toFixed(2)}</Text>
+          {/* MODIFIED: Changed total price display to Rupiah format */}
+          <Text style={styles.total}>
+            Total: {totalPrice.toLocaleString('id-ID', {
+              style: 'currency',
+              currency: 'IDR',
+              minimumFractionDigits: 0,
+            })}
+          </Text>
           <Button
             title="Proceed to Checkout"
             onPress={() => navigation.navigate('Checkout')}
@@ -106,6 +129,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#fff', // Added background color for consistency
   },
   title: {
     fontSize: 24,
@@ -129,6 +153,7 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 14,
     color: '#555',
+    marginVertical: 4, // Added vertical margin
   },
   quantityRow: {
     flexDirection: 'row',
@@ -137,6 +162,7 @@ const styles = StyleSheet.create({
   },
   quantityLabel: {
     marginRight: 8,
+    fontSize: 14, // Consistent font size
   },
   input: {
     borderWidth: 1,
@@ -145,6 +171,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     width: 60,
     borderRadius: 4,
+    textAlign: 'center', // Center the quantity text
   },
   removeBtn: {
     backgroundColor: '#eee',

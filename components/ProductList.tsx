@@ -65,6 +65,7 @@ const ProductList = () => {
     setForm({
       id: product.id,
       name: product.name,
+      // MODIFIED: Ensure the price is a plain string for the input field
       price: String(product.price),
       picture: product.picture || '',
       description: product.description || '',
@@ -138,7 +139,14 @@ const ProductList = () => {
             )}
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Text style={styles.productName}>{item.name}</Text>
-              <Text style={styles.productPrice}>${item.price}</Text>
+              {/* MODIFIED: Changed price display to Rupiah format */}
+              <Text style={styles.productPrice}>
+                {Number(item.price).toLocaleString('id-ID', {
+                  style: 'currency',
+                  currency: 'IDR',
+                  minimumFractionDigits: 0, // Optional: remove decimal places
+                })}
+              </Text>
               {item.description ? <Text style={styles.productDesc}>{item.description}</Text> : null}
               <Text style={styles.productCategory}>Category: {getCategoryName(item.category_id)}</Text>
               <Text style={styles.productCategory}>Stock: {item.stock ?? 0}</Text>
@@ -161,7 +169,7 @@ const ProductList = () => {
             style={styles.input}
           />
           <TextInput
-            placeholder="Price"
+            placeholder="Price (e.g., 50000)"
             value={form.price}
             onChangeText={text => setForm({ ...form, price: text })}
             keyboardType="numeric"
