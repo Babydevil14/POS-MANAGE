@@ -60,6 +60,7 @@ export default function App() {
           <Stack.Screen name="ManageScreen" component={ManageScreen} />
           <Stack.Screen name="CategoriesScreen" component={CategoriesScreen} />
           <Stack.Screen name="ProductScreen" component={ProductScreen} />
+          
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

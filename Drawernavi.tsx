@@ -3,15 +3,17 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from './screens/HomeScreen';
 import CartScreen from './screens/CartScreen';
 import OrdersScreen from './screens/OrdersScreen';
-import SalesSummaryScreen from './screens/SalesReport'; // 1. Import the sales report screen
-import { Ionicons } from '@expo/vector-icons'; // Assuming you use Ionicons
+import SalesSummaryScreen from './screens/SalesReport';
+import ProfileScreen from './screens/ProfileScreen'; 
+import { Ionicons } from '@expo/vector-icons'; 
 
-// 2. Define the ParamList for the screens that are ONLY in the Drawer
+// "Manage" has been removed from this list
 export type DrawerParamList = {
   Home: undefined;
   Cart: undefined;
   Orders: undefined;
   'Sales Summary': undefined;
+  Profile: undefined;
 };
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
@@ -19,6 +21,14 @@ const Drawer = createDrawerNavigator<DrawerParamList>();
 export default function DrawerNavigator() {
   return (
     <Drawer.Navigator initialRouteName="Home">
+      <Drawer.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{ 
+          drawerLabel: '👤 Profile',
+          drawerIcon: ({ color, size }) => <Ionicons name="person-circle-outline" size={size} color={color} />
+        }} 
+      />
       <Drawer.Screen 
         name="Home" 
         component={HomeScreen} 
@@ -43,7 +53,6 @@ export default function DrawerNavigator() {
           drawerIcon: ({ color, size }) => <Ionicons name="receipt-outline" size={size} color={color} />
         }} 
       />
-      {/* 3. Add the Sales Summary screen to the drawer */}
       <Drawer.Screen 
         name="Sales Summary" 
         component={SalesSummaryScreen} 
@@ -52,9 +61,6 @@ export default function DrawerNavigator() {
           drawerIcon: ({ color, size }) => <Ionicons name="analytics-outline" size={size} color={color} />
         }} 
       />
-      {/* REMOVED: ProfileScreen and CashierScreen do not belong in the DrawerNavigator.
-        They are part of the StackNavigator in App.tsx.
-      */}
     </Drawer.Navigator>
   );
 }

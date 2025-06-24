@@ -25,11 +25,7 @@ export default function ProfileScreen() {
       icon: <MaterialIcons name="history" size={22} color="#009e60" />,
       route: 'Orders',
     },
-    {
-      title: 'Sales Report',
-      icon: <FontAwesome5 name="chart-line" size={20} color="#009e60" />,
-      route: 'SalesSummaryScreen'
-    },
+    
     // 'Settings' and 'Logout' items have been removed
   ];
 
